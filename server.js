@@ -2,11 +2,10 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const next = require("next");
 const puppeteer = require("puppeteer");
-const path = require("path")
-const { MongoClient, ServerApiVersion } = require('mongodb');
-;
-const { create, readAll, readOne } = require('./crud');
-require('dotenv').config({ path: '.env.local' });
+const path = require("path");
+const { MongoClient, ServerApiVersion } = require("mongodb");
+const { create, readAll, readOne } = require("./crud");
+require("dotenv").config({ path: ".env.local" });
 
 const uri = `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@headstarter-hackathon-2.3gjkh.mongodb.net/?retryWrites=true&w=majority&appName=headstarter-hackathon-2`;
 
@@ -16,7 +15,7 @@ const client = new MongoClient(uri, {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
 });
 
 const dev = process.env.NODE_ENV !== "production";
@@ -43,14 +42,9 @@ app.prepare().then(() => {
       await page.goto(userUrl, {
         waitUntil: "domcontentloaded",
       });
-
-      await page.screenshot({ path: "screenshot.png" });
       const html = await page.content();
 
       res.json({ html });
-
-      // Take a screenshot
-      await page.screenshot({ path: "screenshot.png" });
     } catch (error) {
       res.status(500).json({ error: "Failed to scrape the website" });
     }
