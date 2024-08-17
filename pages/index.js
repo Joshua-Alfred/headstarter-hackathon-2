@@ -6,6 +6,7 @@ import {
   TextField,
   CircularProgress,
   Card,
+  Stack,
   CardContent,
 } from "@mui/material";
 import DOMPurify from "dompurify";
@@ -14,6 +15,7 @@ export default function ScraperApp() {
   const [userUrl, setUserUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [htmlData, setHtmlData] = useState(null);
+  const [showRawData, setShowRawData] = useState(false);
   const [error, setError] = useState(null);
 
   const handleClick = async () => {
@@ -21,10 +23,7 @@ export default function ScraperApp() {
       alert("Please enter a URL");
       return;
     }
-
     setLoading(true);
-    setHtmlData(null);
-    setError(null);
 
     try {
       const response = await fetch("/api/scraper", {
@@ -38,8 +37,7 @@ export default function ScraperApp() {
       const result = await response.json();
 
       if (response.ok) {
-        const sanitizedHtml = DOMPurify.sanitize(result.html);
-        setHtmlData(sanitizedHtml);
+        setHtmlData(result.html);
       } else {
         setError(result.error);
       }
@@ -76,13 +74,29 @@ export default function ScraperApp() {
           {error}
         </Typography>
       )}
-      {htmlData && (
-        <Card style={{ marginTop: "20px" }}>
-          <CardContent>
+      {htmlData && showRawData && <Typography>{htmlData}</Typography>}
+      {htmlData && !showRawData && (
+        <>
+          <Stack
+            direction="row"
+            alignItems={"flex-end"}
+            justifyContent={"space-between"}
+          >
             <Typography variant="h6">Scraped Data</Typography>
-            <div dangerouslySetInnerHTML={{ __html: htmlData }} />
-          </CardContent>
-        </Card>
+            <Button onClick={() => setShowRawData(true)} variant="outlined">
+              View raw html
+            </Button>
+          </Stack>
+          <Card style={{ marginTop: "20px" }}>
+            <CardContent>
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(htmlData),
+                }}
+              />
+            </CardContent>
+          </Card>
+        </>
       )}
     </Container>
   );

@@ -1,8 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const axios = require("axios");
-const cheerio = require("cheerio");
 const next = require("next");
+const puppeteer = require("puppeteer");
+const path = require("path");
 
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
@@ -20,14 +20,22 @@ app.prepare().then(() => {
     }
 
     try {
-      const response = await axios.get(userUrl);
-      const $ = cheerio.load(response.data);
+      const browser = await puppeteer.launch({
+        headless: true,
+      });
+      const page = await browser.newPage();
 
-      // Get the entire HTML content, nicely formatted
-      const formattedHtml = $.html();
+      await page.goto(userUrl, {
+        waitUntil: "domcontentloaded",
+      });
 
-      // Send the entire HTML content as JSON
-      res.json({ html: formattedHtml });
+      await page.screenshot({ path: "screenshot.png" });
+      const html = await page.content();
+
+      res.json({ html });
+
+      // Take a screenshot
+      await page.screenshot({ path: "screenshot.png" });
     } catch (error) {
       res.status(500).json({ error: "Failed to scrape the website" });
     }
