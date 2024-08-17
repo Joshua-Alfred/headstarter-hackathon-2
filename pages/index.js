@@ -69,7 +69,7 @@ export default function ScraperApp() {
             p: 5,
             border: "2px solid",
             borderImage:
-              "linear-gradient(135deg, orange 0%, red 25%, purple 50%, blue 75%) 1",
+              "linear-gradient(135deg, orange, red, purple, blue) 1",
           }}
         >
           <Stack>
