@@ -2,7 +2,22 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const next = require("next");
 const puppeteer = require("puppeteer");
-const path = require("path");
+const path = require("path")
+const { MongoClient, ServerApiVersion } = require('mongodb');
+;
+const { create, readAll, readOne } = require('./crud');
+require('dotenv').config({ path: '.env.local' });
+
+const uri = `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@headstarter-hackathon-2.3gjkh.mongodb.net/?retryWrites=true&w=majority&appName=headstarter-hackathon-2`;
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
 
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
