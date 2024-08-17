@@ -2,6 +2,7 @@ const express = require('express');
 const next = require('next')
 const { MongoClient, ServerApiVersion } = require('mongodb');
 ;
+const { create, readAll, readOne } = require('./crud');
 require('dotenv').config({ path: '.env.local' });
 
 const uri = `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@headstarter-hackathon-2.3gjkh.mongodb.net/?retryWrites=true&w=majority&appName=headstarter-hackathon-2`;
@@ -14,21 +15,6 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
-
-async function run() {
-  try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
-  }
-}
-run().catch(console.dir);
-
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
