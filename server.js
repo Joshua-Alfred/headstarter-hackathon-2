@@ -1,4 +1,5 @@
 const express = require("express");
+const { Request, Response } = require("express");
 const bodyParser = require("body-parser");
 const next = require("next");
 const puppeteer = require("puppeteer");
@@ -6,6 +7,11 @@ const path = require("path");
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const { create, readAll, readOne } = require("./crud");
 require("dotenv").config({ path: ".env.local" });
+const {
+  startMetricsServer,
+  restResponseTimeHistogram,
+} = require("./utils/metrics");
+const { responseTime } = require("response-time");
 
 const uri = `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@headstarter-hackathon-2.3gjkh.mongodb.net/?retryWrites=true&w=majority&appName=headstarter-hackathon-2`;
 
@@ -24,6 +30,21 @@ const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
   const server = express();
+
+  startMetricsServer();
+
+  server.use(
+    responseTime((req, res, time) => {
+      restResponseTimeHistogram.observe(
+        {
+          method: req.method,
+          route: req.route.path,
+          status_code: res.statusCode,
+        },
+        time * 1000
+      );
+    })
+  );
 
   server.use(bodyParser.json());
 
