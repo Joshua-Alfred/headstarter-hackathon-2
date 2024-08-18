@@ -57,17 +57,38 @@ app.prepare().then(() => {
     try {
       const browser = await puppeteer.launch({
         headless: true,
+        args: [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
+          "--single-process",
+          "--no-zygote",
+        ],
       });
+      
       const page = await browser.newPage();
 
       await page.goto(userUrl, {
         waitUntil: "domcontentloaded",
       });
+      const title = await page.title();
       const html = await page.content();
 
-      res.json({ html });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to scrape the website" });
+      const document = {
+      title: title,
+      url: userUrl,
+      content: html,
+    };
+
+    // Insert the document into MongoDB
+    const result = await create(client, document);
+    console.log(`Inserted document with _id: ${result.insertedId}`);
+
+    await browser.close();
+    res.json({ html });
+  } catch (error) {
+      console.error("Scraping error:", error);
+      res.status(500).json({ error: "Failed to scrape the website", details: error.message });
     }
   });
 
