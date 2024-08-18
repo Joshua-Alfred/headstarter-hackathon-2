@@ -3,6 +3,7 @@ const { Request, Response } = require("express");
 const bodyParser = require("body-parser");
 const next = require("next");
 const puppeteer = require("puppeteer");
+const { executablePath } = require('puppeteer-core');
 const path = require("path");
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const { create, readAll, readOne } = require("./crud");
@@ -57,13 +58,8 @@ app.prepare().then(() => {
     try {
       const browser = await puppeteer.launch({
         headless: true,
-        args: [
-          "--no-sandbox",
-          "--disable-setuid-sandbox",
-          "--disable-dev-shm-usage",
-          "--single-process",
-          "--no-zygote",
-        ],
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        executablePath: executablePath(), 
       });
       
       const page = await browser.newPage();
