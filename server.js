@@ -9,9 +9,9 @@ const { create, readAll, readOne } = require("./crud");
 require("dotenv").config({ path: ".env.local" });
 const {
   startMetricsServer,
-  restResponseTimeHistogram,
+  responseTimeHistogram,
 } = require("./utils/metrics");
-const { responseTime } = require("response-time");
+const responseTime = require("response-time");
 
 const uri = `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@headstarter-hackathon-2.3gjkh.mongodb.net/?retryWrites=true&w=majority&appName=headstarter-hackathon-2`;
 
@@ -35,7 +35,7 @@ app.prepare().then(() => {
 
   server.use(
     responseTime((req, res, time) => {
-      restResponseTimeHistogram.observe(
+      responseTimeHistogram.observe(
         {
           method: req.method,
           route: req.route.path,
